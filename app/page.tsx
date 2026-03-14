@@ -21,11 +21,7 @@ export default function LoginPage() {
       if (normalizedUser === "admin" && password === "password123") {
         router.push("/nurse");
       } else if (normalizedUser === "patient" && password === "password123") {
-<<<<<<< HEAD
-        const DEMO_ID = "aaaaaaaa-0000-0000-0000-000000000002";
-=======
         const DEMO_ID = "aaaaaaaa-0000-0000-0000-000000000001";
->>>>>>> befff74b7241803bb61630958ef50e2dda604e56
         router.push(`/patient/${DEMO_ID}`);
       } else {
         setError("LOGIN FAILED: UNAUTHORIZED CREDENTIALS.");
@@ -110,8 +106,4 @@ export default function LoginPage() {
       </footer>
     </div>
   );
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> befff74b7241803bb61630958ef50e2dda604e56
