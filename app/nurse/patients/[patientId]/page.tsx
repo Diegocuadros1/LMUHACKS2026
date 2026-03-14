@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { ArrowLeft, User, Pill } from 'lucide-react'
 import { createServiceClient } from '@/lib/supabase/server'
 import { NurseSummaryEditor } from '@/components/nurse/NurseSummaryEditor'
 import { ChatLogViewer } from '@/components/nurse/ChatLogViewer'
@@ -36,7 +37,6 @@ export default async function NursePatientDetailPage({ params }: Props) {
   const sessions = sessionsRes.data ?? []
   const toolLogs: ToolLog[] = toolLogsRes.data ?? []
 
-  // Load messages from most recent session
   const latestSession = sessions[0]
   const messagesRes = latestSession
     ? await supabase
@@ -45,144 +45,224 @@ export default async function NursePatientDetailPage({ params }: Props) {
         .eq('session_id', latestSession.id)
         .order('created_at', { ascending: true })
     : null
-  const messages = messagesRes?.data ?? []
+  const messages = (messagesRes?.data ?? []).slice().reverse()
 
   const name = patient.profiles?.full_name ?? 'Unknown'
+  const emergencyContact = [patient.emergency_contact_name, patient.emergency_contact_phone]
+    .filter(Boolean)
+    .join(' · ') || '—'
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-green-700 px-4 py-4 shadow-lg">
-        <div className="mx-auto flex max-w-6xl items-center gap-4">
-          <Link href="/nurse" className="rounded-lg bg-white/10 px-3 py-2 text-sm font-medium text-white hover:bg-white/20 transition">
-            ← Dashboard
-          </Link>
-          <div>
-            <h1 className="text-xl font-extrabold text-white">{name}</h1>
-            <p className="text-sm text-green-200">
-              Room {patient.room_number} · {patient.admission_status} ·{' '}
-              {patient.date_of_birth
-                ? `DOB ${new Date(patient.date_of_birth).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
-                : 'DOB unknown'}
-            </p>
+    <main className="h-screen overflow-hidden bg-slate-100 p-4">
+      <div className="mx-auto flex h-full max-w-400 flex-col gap-4">
+        {/* Header */}
+        <section className="flex shrink-0 items-center rounded-3xl bg-emerald-700 px-4 py-3 text-white shadow-sm">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/nurse"
+              className="inline-flex items-center gap-1.5 rounded-2xl bg-white/10 px-3 py-1.5 text-xs font-medium hover:bg-white/20 transition"
+            >
+              <ArrowLeft className="h-3 w-3" />
+              Dashboard
+            </Link>
+            <div>
+              <h1 className="text-base font-bold">{name}</h1>
+              <p className="text-xs text-emerald-100">
+                Room {patient.room_number} · {patient.admission_status} · DOB{' '}
+                {patient.date_of_birth
+                  ? new Date(patient.date_of_birth).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })
+                  : 'N/A'}
+              </p>
+            </div>
           </div>
-        </div>
-      </header>
+        </section>
 
-      <main className="mx-auto max-w-6xl px-4 py-8 space-y-8">
-        <div className="grid gap-8 lg:grid-cols-3">
+        {/* Main dashboard */}
+        <div className="grid min-h-0 flex-1 grid-cols-12 gap-4">
           {/* Left column */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Patient profile */}
-            <section className="rounded-2xl bg-white p-6 shadow-sm border border-gray-100 space-y-3">
-              <h2 className="text-lg font-bold text-gray-900">Profile</h2>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-gray-500">Full Name</p>
-                  <p className="font-semibold text-gray-900">{name}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Room</p>
-                  <p className="font-semibold text-gray-900">{patient.room_number}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Emergency Contact</p>
-                  <p className="font-semibold text-gray-900">
-                    {patient.emergency_contact_name ?? '—'}{patient.emergency_contact_phone ? ` · ${patient.emergency_contact_phone}` : ''}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Status</p>
-                  <p className="font-semibold text-gray-900 capitalize">{patient.admission_status}</p>
-                </div>
+          <div className="col-span-3 flex min-h-0 flex-col gap-4">
+            <Card className="shrink-0 p-3">
+              <div className="mb-2 flex items-center gap-2">
+                <User className="h-4 w-4 text-slate-600" />
+                <h2 className="text-sm font-bold text-slate-900">Profile</h2>
               </div>
-
-              {/* Family contacts */}
-              {contacts.length > 0 && (
-                <div className="pt-2">
-                  <p className="text-sm font-semibold text-gray-500 mb-2">Family Contacts</p>
-                  <div className="flex flex-wrap gap-2">
-                    {contacts.map((c) => (
-                      <span key={c.id} className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700">
-                        {c.name} ({c.relationship}) · {c.phone}
-                        {c.can_call && ' 📞'}
-                        {c.can_text && ' 💬'}
-                      </span>
-                    ))}
+              <div className="space-y-2 text-xs">
+                <InfoRow label="Full Name" value={name} />
+                <InfoRow label="Room" value={patient.room_number} />
+                <InfoRow label="Status" value={patient.admission_status} />
+                <InfoRow label="Emergency Contact" value={emergencyContact} />
+                {contacts.length > 0 && (
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                      Family Contacts
+                    </p>
+                    <div className="mt-1 flex flex-wrap gap-1.5">
+                      {contacts.map((c) => (
+                        <span
+                          key={c.id}
+                          className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] text-slate-700"
+                        >
+                          {c.name} ({c.relationship}) · {c.phone}
+                          {c.can_call && ' 📞'}
+                          {c.can_text && ' 💬'}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-            </section>
+                )}
+              </div>
+            </Card>
 
-            {/* Summary editor */}
+<Card className="min-h-0 flex-1 flex flex-col p-3">
+              <div className="mb-2 shrink-0">
+                <h2 className="text-sm font-bold text-slate-900">
+                  Alerts
+                  <span className="ml-2 text-xs font-normal text-slate-400">
+                    ({alerts.filter((a) => a.status === 'open').length} open)
+                  </span>
+                </h2>
+              </div>
+              <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+                <AlertFeed alerts={alerts} />
+              </div>
+            </Card>
+          </div>
+
+          {/* Center column */}
+          <div className="col-span-6 flex min-h-0 flex-col gap-4">
             {summary && (
-              <NurseSummaryEditor summary={summary} nurseId={DEMO_NURSE_ID} />
+              <div className="shrink-0">
+                <NurseSummaryEditor summary={summary} nurseId={DEMO_NURSE_ID} />
+              </div>
             )}
 
-            {/* Medications */}
-            <section className="rounded-2xl bg-white p-6 shadow-sm border border-gray-100 space-y-3">
-              <h2 className="text-lg font-bold text-gray-900">Medications</h2>
-              {medications.length === 0 && <p className="text-gray-400 text-sm">No medications on file.</p>}
-              <div className="space-y-2">
+            <Card className="min-h-0 flex-1 flex flex-col p-3">
+              <div className="mb-2 shrink-0 flex items-center gap-2">
+                <Pill className="h-4 w-4 text-slate-600" />
+                <h2 className="text-sm font-bold text-slate-900">Medications</h2>
+              </div>
+              <div className="flex-1 min-h-0 space-y-2 overflow-y-auto pr-1">
+                {medications.length === 0 && (
+                  <p className="text-xs text-slate-400">No medications on file.</p>
+                )}
                 {medications.map((m) => (
-                  <div key={m.id} className="rounded-xl bg-green-50 px-4 py-3 text-sm">
-                    <div className="flex items-center justify-between">
-                      <p className="font-bold text-gray-900">{m.med_name} — {m.dose}</p>
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${m.active ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-500'}`}>
+                  <div
+                    key={m.id}
+                    className="rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-2"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <h3 className="truncate text-xs font-semibold text-slate-900">
+                          {m.med_name} — {m.dose}
+                        </h3>
+                        {m.schedule_text && (
+                          <p className="mt-0.5 text-[11px] text-slate-600">⏰ {m.schedule_text}</p>
+                        )}
+                        {m.nurse_notes && (
+                          <p className="mt-0.5 text-[11px] italic text-orange-600">{m.nurse_notes}</p>
+                        )}
+                      </div>
+                      <span
+                        className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                          m.active
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : 'bg-slate-100 text-slate-500'
+                        }`}
+                      >
                         {m.active ? 'Active' : 'Inactive'}
                       </span>
                     </div>
-                    {m.schedule_text && <p className="mt-1 text-gray-600">⏰ {m.schedule_text}</p>}
-                    {m.nurse_notes && <p className="mt-1 text-orange-700 italic">Note: {m.nurse_notes}</p>}
                   </div>
                 ))}
               </div>
-            </section>
-
-            {/* Chat log */}
-            <section className="rounded-2xl bg-white p-6 shadow-sm border border-gray-100 space-y-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-gray-900">Chat Log</h2>
-                <p className="text-xs text-gray-400">
-                  Session: {latestSession?.started_at
-                    ? new Date(latestSession.started_at).toLocaleString()
-                    : 'None'}
-                </p>
-              </div>
-              <ChatLogViewer messages={messages} />
-            </section>
-
-            {/* Tool logs */}
-            <section className="rounded-2xl bg-white p-6 shadow-sm border border-gray-100 space-y-3">
-              <h2 className="text-lg font-bold text-gray-900">AI Tool Logs</h2>
-              {toolLogs.length === 0 && <p className="text-gray-400 text-sm">No tool calls recorded.</p>}
-              <div className="space-y-2 max-h-72 overflow-y-auto">
-                {toolLogs.map((log) => (
-                  <div key={log.id} className={`rounded-xl px-4 py-3 text-xs font-mono ${log.status === 'error' ? 'bg-red-50 border border-red-200' : log.status === 'mocked' ? 'bg-yellow-50 border border-yellow-200' : 'bg-gray-50 border border-gray-100'}`}>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-bold text-purple-700">{log.tool_name}</span>
-                      <span className={`rounded-full px-2 py-0.5 ${log.status === 'error' ? 'bg-red-200 text-red-800' : log.status === 'mocked' ? 'bg-yellow-200 text-yellow-800' : 'bg-green-200 text-green-800'}`}>
-                        {log.status}
-                      </span>
-                      <span className="ml-auto text-gray-400">{new Date(log.created_at).toLocaleTimeString()}</span>
-                    </div>
-                    <p className="text-gray-600 truncate">→ {JSON.stringify(log.output_json)}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
+            </Card>
           </div>
 
-          {/* Right column — alerts */}
-          <div className="space-y-4">
-            <h2 className="text-lg font-bold text-gray-800">
-              Alerts
-              <span className="ml-2 text-sm font-normal text-gray-400">({alerts.filter(a => a.status === 'open').length} open)</span>
-            </h2>
-            <AlertFeed alerts={alerts} />
+          {/* Right column */}
+          <div className="col-span-3 flex min-h-0 flex-col gap-4">
+            <Card className="flex-1 min-h-0 flex flex-col p-3">
+              <div className="mb-2 shrink-0 flex items-center justify-between gap-2">
+                <h2 className="text-sm font-bold text-slate-900">Chat Log</h2>
+                <span className="text-[10px] text-slate-400">
+                  {latestSession?.started_at
+                    ? new Date(latestSession.started_at).toLocaleString()
+                    : 'No session'}
+                </span>
+              </div>
+              <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+                <ChatLogViewer messages={messages} />
+              </div>
+            </Card>
+
+            <Card className="shrink-0 p-3">
+              <h2 className="mb-2 text-sm font-bold text-slate-900">AI Tool Logs</h2>
+              {toolLogs.length === 0 ? (
+                <p className="text-xs text-slate-400">No tool calls recorded.</p>
+              ) : (
+                <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                  {toolLogs.map((log) => (
+                    <div
+                      key={log.id}
+                      className={`rounded-xl px-3 py-2 text-xs font-mono ${
+                        log.status === 'error'
+                          ? 'bg-red-50 border border-red-200'
+                          : log.status === 'mocked'
+                          ? 'bg-yellow-50 border border-yellow-200'
+                          : 'bg-slate-50 border border-slate-100'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="font-bold text-purple-700">{log.tool_name}</span>
+                        <span className={`rounded-full px-2 py-0.5 ${
+                          log.status === 'error'
+                            ? 'bg-red-200 text-red-800'
+                            : log.status === 'mocked'
+                            ? 'bg-yellow-200 text-yellow-800'
+                            : 'bg-emerald-200 text-emerald-800'
+                        }`}>
+                          {log.status}
+                        </span>
+                        <span className="ml-auto text-slate-400">
+                          {new Date(log.created_at).toLocaleTimeString()}
+                        </span>
+                      </div>
+                      <p className="text-slate-500 truncate">→ {JSON.stringify(log.output_json)}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
           </div>
         </div>
-      </main>
+      </div>
+    </main>
+  )
+}
+
+function Card({
+  children,
+  className = '',
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <section className={`rounded-3xl border border-slate-200 bg-white shadow-sm ${className}`}>
+      {children}
+    </section>
+  )
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</p>
+      <p className="mt-1 font-medium text-slate-900">{value}</p>
     </div>
   )
 }
+
