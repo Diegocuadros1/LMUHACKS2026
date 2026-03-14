@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ArrowLeft, User, Pill } from 'lucide-react'
 import { createServiceClient } from '@/lib/supabase/server'
 import { NurseSummaryEditor } from '@/components/nurse/NurseSummaryEditor'
+import { NurseMessageSender } from '@/components/nurse/NurseMessageSender'
 import { ChatLogViewer } from '@/components/nurse/ChatLogViewer'
 import { AlertFeed } from '@/components/nurse/AlertFeed'
 import type { ToolLog } from '@/lib/types'
@@ -134,6 +135,10 @@ export default async function NursePatientDetailPage({ params }: Props) {
 
           {/* Center column */}
           <div className="col-span-6 flex min-h-0 flex-col gap-4">
+            <div className="shrink-0">
+              <NurseMessageSender sessionId={latestSession?.id ?? ''} patientName={name} />
+            </div>
+
             {summary && (
               <div className="shrink-0">
                 <NurseSummaryEditor summary={summary} nurseId={DEMO_NURSE_ID} />

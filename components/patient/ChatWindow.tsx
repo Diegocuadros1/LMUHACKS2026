@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { VoiceButton } from './VoiceButton'
 
 interface Message {
-  role: 'user' | 'assistant'
+  role: 'user' | 'assistant' | 'nurse'
   content: string
   timestamp: Date
 }
@@ -67,6 +67,12 @@ export function ChatWindow({ patientId, sessionId, initialMessages = [] }: ChatW
   const [loading, setLoading] = useState(false)
   const [voiceEnabled, setVoiceEnabled] = useState(false)
   const messagesRef = useRef<HTMLDivElement>(null)
+  // Track the timestamp of the newest message we've received, for incremental polling
+  const lastMessageTimeRef = useRef<string>(
+    initialMessages.length > 0
+      ? new Date(Math.max(...initialMessages.map((m) => new Date(m.timestamp).getTime()))).toISOString()
+      : new Date(0).toISOString()
+  )
 
   useEffect(() => {
     if (messagesRef.current) {
@@ -76,6 +82,40 @@ export function ChatWindow({ patientId, sessionId, initialMessages = [] }: ChatW
 
   // Stop speaking when the component unmounts
   useEffect(() => () => stopSpeaking(), [])
+
+  // Poll for new nurse messages every 4 seconds
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(
+          `/api/session-messages?sessionId=${sessionId}&after=${encodeURIComponent(lastMessageTimeRef.current)}`
+        )
+        if (!res.ok) return
+        const data = await res.json()
+        const incoming = (data.messages ?? []) as { sender: string; content: string; created_at: string }[]
+        const nurseMessages = incoming.filter((m) => m.sender === 'nurse')
+        if (nurseMessages.length === 0) return
+
+        // Update the watermark
+        const latest = nurseMessages[nurseMessages.length - 1].created_at
+        lastMessageTimeRef.current = latest
+
+        const newMessages: Message[] = nurseMessages.map((m) => ({
+          role: 'nurse' as const,
+          content: m.content,
+          timestamp: new Date(m.created_at),
+        }))
+        setMessages((prev) => [...prev, ...newMessages])
+        if (voiceEnabled) {
+          newMessages.forEach((m) => speak(`Nurse says: ${m.content}`))
+        }
+      } catch {
+        // Silently ignore poll errors
+      }
+    }, 4000)
+
+    return () => clearInterval(interval)
+  }, [sessionId, voiceEnabled])
 
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || loading) return
@@ -96,7 +136,10 @@ export function ChatWindow({ patientId, sessionId, initialMessages = [] }: ChatW
         body: JSON.stringify({
           patientId,
           sessionId,
-          messages: history.map((m) => ({ role: m.role, content: m.content })),
+          // Exclude nurse messages — they are not part of the AI conversation history
+          messages: history
+            .filter((m) => m.role !== 'nurse')
+            .map((m) => ({ role: m.role, content: m.content })),
         }),
       })
 
@@ -166,10 +209,20 @@ export function ChatWindow({ patientId, sessionId, initialMessages = [] }: ChatW
             <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-base leading-relaxed shadow-sm ${
               m.role === 'user'
                 ? 'bg-blue-600 text-white rounded-br-sm'
+                : m.role === 'nurse'
+                ? 'bg-emerald-50 text-gray-800 rounded-bl-sm border border-emerald-300'
                 : 'bg-white text-gray-800 rounded-bl-sm border border-gray-100'
             }`}>
+              {m.role === 'nurse' && (
+                <p className="mb-1 text-xs font-bold text-emerald-700 uppercase tracking-wide">
+                  Nurse messaged you
+                </p>
+              )}
               <p className="whitespace-pre-wrap">{m.content}</p>
-              <p className={`mt-1 text-xs ${m.role === 'user' ? 'text-blue-200' : 'text-gray-400'}`}>
+              <p className={`mt-1 text-xs ${
+                m.role === 'user' ? 'text-blue-200' :
+                m.role === 'nurse' ? 'text-emerald-500' : 'text-gray-400'
+              }`}>
                 {(m.timestamp instanceof Date ? m.timestamp : new Date(m.timestamp))
                   .toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </p>

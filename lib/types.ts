@@ -5,7 +5,7 @@ export type Role = 'patient' | 'nurse' | 'admin'
 export type AdmissionStatus = 'admitted' | 'discharged' | 'pending'
 export type AlertSeverity = 'low' | 'medium' | 'high' | 'critical'
 export type AlertStatus = 'open' | 'acknowledged' | 'resolved'
-export type MessageSender = 'patient' | 'assistant' | 'system'
+export type MessageSender = 'patient' | 'assistant' | 'system' | 'nurse'
 export type ToolStatus = 'success' | 'error' | 'mocked'
 
 export interface Profile {

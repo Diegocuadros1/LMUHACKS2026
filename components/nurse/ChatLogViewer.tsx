@@ -45,6 +45,8 @@ export function ChatLogViewer({ messages, onFlag }: ChatLogViewerProps) {
               ? 'bg-blue-50 border border-blue-100'
               : m.sender === 'assistant'
               ? 'bg-white border border-gray-100 shadow-sm'
+              : m.sender === 'nurse'
+              ? 'bg-emerald-50 border border-emerald-200'
               : 'bg-gray-50 border border-dashed border-gray-200'
           } ${m.flagged_incorrect ? 'border-red-300 bg-red-50' : ''}`}
         >
@@ -52,7 +54,8 @@ export function ChatLogViewer({ messages, onFlag }: ChatLogViewerProps) {
             <div className="flex items-center gap-2">
               <span className={`text-xs font-bold uppercase tracking-wide ${
                 m.sender === 'patient' ? 'text-blue-700' :
-                m.sender === 'assistant' ? 'text-gray-600' : 'text-gray-400'
+                m.sender === 'assistant' ? 'text-gray-600' :
+                m.sender === 'nurse' ? 'text-emerald-700' : 'text-gray-400'
               }`}>
                 {m.sender}
               </span>
