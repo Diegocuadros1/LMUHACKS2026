@@ -6,31 +6,31 @@ import { logInteraction } from './logInteraction'
 
 export async function sendMessage(
   patientId: string,
-  contactId: string,
+  contactName: string,
   message: string
 ) {
   const supabase = createServiceClient()
 
+  // Look up by name (case-insensitive) scoped to this patient
   const { data: contact, error } = await supabase
     .from('contacts')
     .select('*')
-    .eq('id', contactId)
     .eq('patient_id', patientId)
+    .ilike('name', contactName)
     .single()
 
   if (error || !contact) {
-    const result = { success: false, error: 'Contact not found' }
-    await logInteraction(patientId, 'sendMessage', { patientId, contactId, message }, result, 'error')
+    const result = { success: false, error: `No contact named "${contactName}" found.` }
+    await logInteraction(patientId, 'sendMessage', { patientId, contactName, message }, result, 'error')
     return result
   }
 
   if (!contact.can_text) {
     const result = { success: false, error: `${contact.name} has not enabled text messages.` }
-    await logInteraction(patientId, 'sendMessage', { patientId, contactId, message }, result, 'error')
+    await logInteraction(patientId, 'sendMessage', { patientId, contactName, message }, result, 'error')
     return result
   }
 
-  // --- MOCK: simulate SMS send ---
   console.log(`[MOCK sendMessage] SMS to ${contact.name} at ${contact.phone}: "${message}"`)
   const result = {
     success: true,
@@ -39,8 +39,7 @@ export async function sendMessage(
     contactName: contact.name,
     phone: contact.phone,
   }
-  // --- END MOCK ---
 
-  await logInteraction(patientId, 'sendMessage', { patientId, contactId, message }, result, 'mocked')
+  await logInteraction(patientId, 'sendMessage', { patientId, contactName, message }, result, 'mocked')
   return result
 }

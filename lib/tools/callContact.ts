@@ -5,29 +5,29 @@
 import { createServiceClient } from '@/lib/supabase/server'
 import { logInteraction } from './logInteraction'
 
-export async function callContact(patientId: string, contactId: string) {
+export async function callContact(patientId: string, contactName: string) {
   const supabase = createServiceClient()
 
+  // Look up by name (case-insensitive) scoped to this patient
   const { data: contact, error } = await supabase
     .from('contacts')
     .select('*')
-    .eq('id', contactId)
     .eq('patient_id', patientId)
+    .ilike('name', contactName)
     .single()
 
   if (error || !contact) {
-    const result = { success: false, error: 'Contact not found' }
-    await logInteraction(patientId, 'callContact', { patientId, contactId }, result, 'error')
+    const result = { success: false, error: `No contact named "${contactName}" found.` }
+    await logInteraction(patientId, 'callContact', { patientId, contactName }, result, 'error')
     return result
   }
 
   if (!contact.can_call) {
     const result = { success: false, error: `${contact.name} has not enabled calls.` }
-    await logInteraction(patientId, 'callContact', { patientId, contactId }, result, 'error')
+    await logInteraction(patientId, 'callContact', { patientId, contactName }, result, 'error')
     return result
   }
 
-  // --- MOCK: simulate a successful call initiation ---
   console.log(`[MOCK callContact] Initiating call to ${contact.name} at ${contact.phone}`)
   const result = {
     success: true,
@@ -36,8 +36,7 @@ export async function callContact(patientId: string, contactId: string) {
     contactName: contact.name,
     phone: contact.phone,
   }
-  // --- END MOCK ---
 
-  await logInteraction(patientId, 'callContact', { patientId, contactId }, result, 'mocked')
+  await logInteraction(patientId, 'callContact', { patientId, contactName }, result, 'mocked')
   return result
 }

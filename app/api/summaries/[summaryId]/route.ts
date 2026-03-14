@@ -24,6 +24,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ su
       .eq('id', summaryId)
 
     if (error) return NextResponse.json({ error: 'Update failed' }, { status: 500 })
+
+    console.log("Bot viewed summary")
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('[/api/summaries]', err)

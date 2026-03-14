@@ -82,6 +82,8 @@ export async function controlRoomDevice(
     message: description || `Device ${deviceType} updated.`,
   }
 
+  console.log(`[controlRoomDevice] ${description || `Updated ${deviceType} with action ${action}.`}`, { patientId, deviceType, action, value, newState })
+
   await logInteraction(patientId, 'controlRoomDevice', { patientId, deviceType, action, value }, result, 'mocked')
   return result
 }

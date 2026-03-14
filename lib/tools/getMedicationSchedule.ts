@@ -24,6 +24,7 @@ export async function getMedicationSchedule(patientId: string) {
   }))
 
   const result = { success: true, medications: meds }
+  console.log("Retrieved medication schedule:")
   await logInteraction(patientId, 'getMedicationSchedule', { patientId }, result, 'success')
   return result
 }

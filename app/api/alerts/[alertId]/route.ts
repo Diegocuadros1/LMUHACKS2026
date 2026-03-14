@@ -20,6 +20,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ al
       .eq('id', alertId)
 
     if (error) return NextResponse.json({ error: 'Update failed' }, { status: 500 })
+    console.log(`Alert ${alertId} status updated to:`, parsed.data.status)
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('[/api/alerts/[alertId]]', err)

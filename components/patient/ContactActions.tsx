@@ -12,7 +12,7 @@ interface ContactActionsProps {
 export function ContactActions({ contacts, patientId, onFeedback }: ContactActionsProps) {
   const [loading, setLoading] = useState<string | null>(null)
   const [messageText, setMessageText] = useState('')
-  const [selectedContact, setSelectedContact] = useState<string>(contacts[0]?.id ?? '')
+  const [selectedContact, setSelectedContact] = useState<string>(contacts[0]?.name ?? '')
   const [feedback, setFeedback] = useState<string | null>(null)
 
   const showFeedback = (msg: string) => {
@@ -27,7 +27,7 @@ export function ContactActions({ contacts, patientId, onFeedback }: ContactActio
       const res = await fetch('/api/contacts/call', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patientId, contactId: contact.id }),
+        body: JSON.stringify({ patientId, contactName: contact.name }),
       })
       const data = await res.json()
       showFeedback(data.message ?? `Calling ${contact.name}...`)
@@ -45,7 +45,7 @@ export function ContactActions({ contacts, patientId, onFeedback }: ContactActio
       const res = await fetch('/api/contacts/message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patientId, contactId: selectedContact, message: messageText }),
+        body: JSON.stringify({ patientId, contactName: selectedContact, message: messageText }),
       })
       const data = await res.json()
       showFeedback(data.message ?? 'Message sent!')
@@ -105,7 +105,7 @@ export function ContactActions({ contacts, patientId, onFeedback }: ContactActio
           className="w-full rounded-xl border border-orange-200 bg-white px-4 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-orange-400"
         >
           {contacts.filter((c) => c.can_text).map((c) => (
-            <option key={c.id} value={c.id}>
+            <option key={c.id} value={c.name}>
               {c.name} ({c.relationship})
             </option>
           ))}

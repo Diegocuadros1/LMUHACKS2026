@@ -145,7 +145,7 @@ export function ChatWindow({ patientId, sessionId, initialMessages = [] }: ChatW
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-gray-50">
+      <div ref={messagesRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-gray-50">
         {messages.length === 0 && (
           <div className="flex h-full flex-col items-center justify-center gap-3 text-gray-400">
             <span className="text-5xl">💬</span>
@@ -189,7 +189,6 @@ export function ChatWindow({ patientId, sessionId, initialMessages = [] }: ChatW
           </div>
         )}
 
-        <div ref={messagesRef} />
       </div>
 
       {/* Input area */}

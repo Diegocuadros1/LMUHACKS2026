@@ -24,6 +24,8 @@ export async function getPatientSummary(patientId: string) {
     precautions: data.precautions,
   }
 
+  console.log("Retrieved patient summary")
+
   await logInteraction(patientId, 'getPatientSummary', { patientId }, result, 'success')
   return result
 }

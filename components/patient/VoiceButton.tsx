@@ -7,28 +7,26 @@ interface VoiceButtonProps {
   disabled?: boolean
 }
 
-// Extend Window type for webkit-prefixed SpeechRecognition (Chrome/Edge)
-declare global {
-  interface Window {
-    SpeechRecognition?: typeof SpeechRecognition
-    webkitSpeechRecognition?: typeof SpeechRecognition
-  }
-}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyRecognition = any
 
 export function VoiceButton({ onTranscript, disabled }: VoiceButtonProps) {
   const [listening, setListening] = useState(false)
   const [supported, setSupported] = useState(true)
-  const recognitionRef = useRef<SpeechRecognition | null>(null)
+  const recognitionRef = useRef<AnyRecognition>(null)
 
   useEffect(() => {
     // Check support on mount (client-only)
-    const SR = window.SpeechRecognition ?? window.webkitSpeechRecognition
-    if (!SR) setSupported(false)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const w = window as any
+    if (!w.SpeechRecognition && !w.webkitSpeechRecognition) setSupported(false)
     return () => recognitionRef.current?.abort()
   }, [])
 
   const startListening = () => {
-    const SR = window.SpeechRecognition ?? window.webkitSpeechRecognition
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const w = window as any
+    const SR = w.SpeechRecognition ?? w.webkitSpeechRecognition
     if (!SR) {
       alert('Voice input requires Chrome or Edge. Please type your message instead.')
       return
@@ -40,19 +38,18 @@ export function VoiceButton({ onTranscript, disabled }: VoiceButtonProps) {
     recognition.lang = 'en-US'
     recognition.interimResults = false
     recognition.maxAlternatives = 1
-    // Auto-stop after a short pause — good for patient use
-    recognition.continuous = false
+    recognition.continuous = false // auto-stop after silence — good for patient use
 
     recognition.onstart = () => setListening(true)
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
+    recognition.onresult = (event: { results: { [key: number]: { [key: number]: { transcript: string } } } }) => {
       const transcript = event.results[0][0].transcript.trim()
       if (transcript) onTranscript(transcript)
     }
 
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+    recognition.onerror = (event: { error: string }) => {
       console.warn('[VoiceButton] Speech recognition error:', event.error)
-      // 'no-speech' is normal — user was quiet, don't show an alert
+      // 'no-speech' is normal — user was quiet, don't alert
       if (event.error !== 'no-speech') {
         alert(`Voice input error: ${event.error}. Please try again or type your message.`)
       }
@@ -70,21 +67,18 @@ export function VoiceButton({ onTranscript, disabled }: VoiceButtonProps) {
   }
 
   const handleClick = () => {
-    if (listening) {
-      stopListening()
-    } else {
-      startListening()
-    }
+    if (listening) stopListening()
+    else startListening()
   }
 
   if (!supported) {
     return (
       <button
         disabled
-        title="Voice input requires Chrome or Edge"
-        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gray-300 text-gray-500 cursor-not-allowed"
-        aria-label="Voice input not supported in this browser"
         type="button"
+        title="Voice input requires Chrome or Edge"
+        aria-label="Voice input not supported in this browser"
+        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gray-300 text-gray-500 cursor-not-allowed"
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
           <path d="M8.25 4.5a3.75 3.75 0 1 1 7.5 0v8.25a3.75 3.75 0 1 1-7.5 0V4.5Z" />
@@ -107,7 +101,6 @@ export function VoiceButton({ onTranscript, disabled }: VoiceButtonProps) {
           : 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-300'
       }`}
     >
-      {/* Pulsing ring when listening */}
       {listening && (
         <span className="absolute inset-0 rounded-full bg-red-400 animate-ping opacity-60" />
       )}

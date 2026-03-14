@@ -11,6 +11,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ me
     const parsed = Schema.safeParse(body)
     if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
 
+    console.log(`Flagging message ${messageId} as incorrect:`, parsed.data.flagged)
+
     const supabase = createServiceClient()
     const { error } = await supabase
       .from('chat_messages')

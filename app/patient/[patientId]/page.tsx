@@ -82,7 +82,6 @@ export default async function PatientPage({ params }: Props) {
     .select('*')
     .eq('session_id', sessionId)
     .order('created_at', { ascending: true })
-    .limit(30)
 
   const firstName = patient.profiles?.full_name?.split(' ')[0] ?? 'there'
 

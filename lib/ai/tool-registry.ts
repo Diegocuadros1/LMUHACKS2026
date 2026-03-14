@@ -43,14 +43,14 @@ export const TOOL_DEFINITIONS: ChatCompletionTool[] = [
     type: 'function',
     function: {
       name: 'callContact',
-      description: 'Initiate a phone call to a family or emergency contact.',
+      description: 'Initiate a phone call to a family or emergency contact by name (e.g. "Elena", "my daughter").',
       parameters: {
         type: 'object',
         properties: {
           patientId: { type: 'string', description: 'The patient UUID' },
-          contactId: { type: 'string', description: 'The contact UUID' },
+          contactName: { type: 'string', description: 'The contact\'s first or full name as the patient knows them' },
         },
-        required: ['patientId', 'contactId'],
+        required: ['patientId', 'contactName'],
       },
     },
   },
@@ -63,10 +63,10 @@ export const TOOL_DEFINITIONS: ChatCompletionTool[] = [
         type: 'object',
         properties: {
           patientId: { type: 'string', description: 'The patient UUID' },
-          contactId: { type: 'string', description: 'The contact UUID' },
+          contactName: { type: 'string', description: 'The contact\'s first or full name as the patient knows them' },
           message: { type: 'string', description: 'The message text to send' },
         },
-        required: ['patientId', 'contactId', 'message'],
+        required: ['patientId', 'contactName', 'message'],
       },
     },
   },
@@ -135,10 +135,10 @@ export async function dispatchTool(
       return getMedicationSchedule(patientId) as Promise<Record<string, unknown>>
 
     case 'callContact':
-      return callContact(patientId, args.contactId as string) as Promise<Record<string, unknown>>
+      return callContact(patientId, args.contactName as string) as Promise<Record<string, unknown>>
 
     case 'sendMessage':
-      return sendMessage(patientId, args.contactId as string, args.message as string) as Promise<Record<string, unknown>>
+      return sendMessage(patientId, args.contactName as string, args.message as string) as Promise<Record<string, unknown>>
 
     case 'createNurseAlert':
       return createNurseAlert(patientId, args.severity as 'low' | 'medium' | 'high' | 'critical', args.reason as string) as Promise<Record<string, unknown>>
