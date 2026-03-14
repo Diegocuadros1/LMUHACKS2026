@@ -8,9 +8,16 @@ import { createServiceClient } from '@/lib/supabase/server'
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
+// Zod's .uuid() enforces strict RFC 4122 version/variant bits.
+// Our demo seed uses non-compliant UUIDs (version 0, variant 0), so we use
+// a lenient format regex instead. Tighten this in production.
+const uuidLike = z.string().regex(
+  /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+)
+
 const RequestSchema = z.object({
-  patientId: z.string().uuid(),
-  sessionId: z.string().uuid(),
+  patientId: uuidLike,
+  sessionId: uuidLike,
   messages: z.array(
     z.object({
       role: z.enum(['user', 'assistant']),
@@ -24,6 +31,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const parsed = RequestSchema.safeParse(body)
     if (!parsed.success) {
+      console.error('[/api/chat] Validation error:', JSON.stringify(parsed.error.flatten(), null, 2))
+      console.error('[/api/chat] Received body:', JSON.stringify({ patientId: body?.patientId, sessionId: body?.sessionId, messageCount: body?.messages?.length }, null, 2))
       return NextResponse.json({ error: 'Invalid request', details: parsed.error.flatten() }, { status: 400 })
     }
 
