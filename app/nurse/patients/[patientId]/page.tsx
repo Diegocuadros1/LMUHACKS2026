@@ -17,7 +17,7 @@ export default async function NursePatientDetailPage({ params }: Props) {
   const supabase = createServiceClient()
 
   const [patientRes, summaryRes, medsRes, contactsRes, alertsRes, sessionsRes, toolLogsRes] = await Promise.all([
-    supabase.from('patients').select('*, profiles(*)').eq('id', patientId).single(),
+    supabase.from('patients').select('*, profiles!profile_id(*)').eq('id', patientId).single(),
     supabase.from('patient_summaries').select('*').eq('patient_id', patientId).single(),
     supabase.from('medications').select('*').eq('patient_id', patientId).order('created_at'),
     supabase.from('contacts').select('*').eq('patient_id', patientId).order('created_at'),

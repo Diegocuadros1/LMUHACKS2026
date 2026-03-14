@@ -12,7 +12,7 @@ export default async function NurseDashboard() {
   const [patientsRes, alertsRes] = await Promise.all([
     supabase
       .from('patients')
-      .select('*, profiles(*)')
+      .select('*, profiles!profile_id(*)')
       .eq('admission_status', 'admitted')
       .order('created_at'),
     supabase

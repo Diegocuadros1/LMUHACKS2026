@@ -20,7 +20,7 @@ export default async function PatientPage({ params }: Props) {
   const [patientRes, summaryRes, medsRes, contactsRes, alertsRes, sessionRes] = await Promise.all([
     supabase
       .from('patients')
-      .select('*, profiles(*)')
+      .select('*, profiles!profile_id(*)')
       .eq('id', patientId)
       .single(),
     supabase
@@ -144,17 +144,10 @@ export default async function PatientPage({ params }: Props) {
           <SummaryCard summary={summary} />
 
           {/* Room controls */}
-          <RoomControls
-            patientId={patientId}
-            onAction={(msg) => console.log('[RoomControls]', msg)}
-          />
+          <RoomControls patientId={patientId} />
 
           {/* Contacts */}
-          <ContactActions
-            contacts={contacts}
-            patientId={patientId}
-            onFeedback={(msg) => console.log('[Contacts]', msg)}
-          />
+          <ContactActions contacts={contacts} patientId={patientId} />
         </div>
       </main>
     </div>

@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 interface RoomControlsProps {
   patientId: string
-  onAction: (message: string) => void
+  onAction?: (message: string) => void
 }
 
 type DeviceAction = {
@@ -28,6 +28,7 @@ const DEVICE_ACTIONS: DeviceAction[] = [
 
 export function RoomControls({ patientId, onAction }: RoomControlsProps) {
   const [loading, setLoading] = useState<string | null>(null)
+  const [feedback, setFeedback] = useState<string | null>(null)
 
   const handleDevice = async (device: DeviceAction) => {
     const key = `${device.deviceType}-${device.action}`
@@ -44,9 +45,15 @@ export function RoomControls({ patientId, onAction }: RoomControlsProps) {
         }),
       })
       const data = await res.json()
-      onAction(data.message ?? `${device.label} done.`)
+      const msg = data.message ?? `${device.label} done.`
+      onAction?.(msg)
+      setFeedback(msg)
+      setTimeout(() => setFeedback(null), 3000)
     } catch {
-      onAction(`Could not control ${device.label}. Please try the physical button.`)
+      const msg = `Could not control ${device.label}. Please try the physical button.`
+      onAction?.(msg)
+      setFeedback(msg)
+      setTimeout(() => setFeedback(null), 3000)
     } finally {
       setLoading(null)
     }
@@ -55,6 +62,9 @@ export function RoomControls({ patientId, onAction }: RoomControlsProps) {
   return (
     <div className="rounded-2xl bg-purple-50 p-6 space-y-4">
       <h2 className="text-xl font-bold text-purple-900">Room Controls</h2>
+      {feedback && (
+        <p className="rounded-lg bg-purple-100 px-3 py-2 text-sm text-purple-800">{feedback}</p>
+      )}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {DEVICE_ACTIONS.map((device) => {
           const key = `${device.deviceType}-${device.action}`

@@ -6,13 +6,20 @@ import type { Contact } from '@/lib/types'
 interface ContactActionsProps {
   contacts: Contact[]
   patientId: string
-  onFeedback: (msg: string) => void
+  onFeedback?: (msg: string) => void
 }
 
 export function ContactActions({ contacts, patientId, onFeedback }: ContactActionsProps) {
   const [loading, setLoading] = useState<string | null>(null)
   const [messageText, setMessageText] = useState('')
   const [selectedContact, setSelectedContact] = useState<string>(contacts[0]?.id ?? '')
+  const [feedback, setFeedback] = useState<string | null>(null)
+
+  const showFeedback = (msg: string) => {
+    onFeedback?.(msg)
+    setFeedback(msg)
+    setTimeout(() => setFeedback(null), 3000)
+  }
 
   const handleCall = async (contact: Contact) => {
     setLoading(`call-${contact.id}`)
@@ -23,9 +30,9 @@ export function ContactActions({ contacts, patientId, onFeedback }: ContactActio
         body: JSON.stringify({ patientId, contactId: contact.id }),
       })
       const data = await res.json()
-      onFeedback(data.message ?? `Calling ${contact.name}...`)
+      showFeedback(data.message ?? `Calling ${contact.name}...`)
     } catch {
-      onFeedback(`Could not place the call. Please ask your nurse for help.`)
+      showFeedback(`Could not place the call. Please ask your nurse for help.`)
     } finally {
       setLoading(null)
     }
@@ -41,10 +48,10 @@ export function ContactActions({ contacts, patientId, onFeedback }: ContactActio
         body: JSON.stringify({ patientId, contactId: selectedContact, message: messageText }),
       })
       const data = await res.json()
-      onFeedback(data.message ?? 'Message sent!')
+      showFeedback(data.message ?? 'Message sent!')
       setMessageText('')
     } catch {
-      onFeedback('Could not send the message. Please try again.')
+      showFeedback('Could not send the message. Please try again.')
     } finally {
       setLoading(null)
     }
@@ -61,6 +68,9 @@ export function ContactActions({ contacts, patientId, onFeedback }: ContactActio
   return (
     <div className="rounded-2xl bg-orange-50 p-6 space-y-5">
       <h2 className="text-xl font-bold text-orange-900">Contact Family</h2>
+      {feedback && (
+        <p className="rounded-lg bg-orange-100 px-3 py-2 text-sm text-orange-800">{feedback}</p>
+      )}
 
       {/* Call buttons */}
       <div className="space-y-2">
