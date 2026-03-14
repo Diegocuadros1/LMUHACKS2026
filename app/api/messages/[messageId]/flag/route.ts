@@ -18,6 +18,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ me
       .eq('id', messageId)
 
     if (error) return NextResponse.json({ error: 'Update failed' }, { status: 500 })
+
+    console.log(`Message ${messageId} flagged as incorrect:`, parsed.data.flagged)
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('[/api/messages/flag]', err)

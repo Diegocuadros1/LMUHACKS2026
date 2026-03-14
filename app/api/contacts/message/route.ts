@@ -3,8 +3,8 @@ import { z } from 'zod'
 import { sendMessage } from '@/lib/tools/sendMessage'
 
 const Schema = z.object({
-  patientId: z.string().uuid(),
-  contactId: z.string().uuid(),
+  patientId: z.string().min(36).max(36),
+  contactId: z.string().min(36).max(36),
   message: z.string().min(1).max(500),
 })
 
@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
 
     const { patientId, contactId, message } = parsed.data
     const result = await sendMessage(patientId, contactId, message)
+    console.log("[/api/contacts/message] Message sent:", { patientId, contactId, message })
     return NextResponse.json(result)
   } catch (err) {
     console.error('[/api/contacts/message]', err)

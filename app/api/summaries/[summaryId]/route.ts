@@ -7,7 +7,7 @@ const Schema = z.object({
   allergies: z.string().optional(),
   diagnoses_display: z.string().optional(),
   precautions: z.string().optional(),
-  approved_by_nurse_id: z.string().uuid().optional(),
+  approved_by_nurse_id: z.string().min(36).max(36).optional(),
 })
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ summaryId: string }> }) {

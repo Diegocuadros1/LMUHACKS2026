@@ -9,6 +9,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.redirect(new URL('/', req.url))
   }
 
+  console.log("EMERGENCY ALERT: Patient ID", patientId)
+
   await createNurseAlert(
     patientId,
     'critical',
