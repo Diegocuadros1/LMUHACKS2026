@@ -15,6 +15,7 @@ export async function POST(req: NextRequest) {
 
     const result = await callContact(parsed.data.patientId, parsed.data.contactId)
     console.log("[/api/contacts/call] Call initiated:", { patientId: parsed.data.patientId, contactId: parsed.data.contactId })
+    
     return NextResponse.json(result)
   } catch (err) {
     console.error('[/api/contacts/call]', err)

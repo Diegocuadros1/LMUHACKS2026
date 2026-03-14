@@ -38,8 +38,19 @@ export async function POST(req: NextRequest) {
 
     const { patientId, sessionId, messages } = parsed.data
 
-    // --- Pre-screen for urgent keywords before hitting OpenAI ---
     const latestUserMessage = [...messages].reverse().find((m) => m.role === 'user')?.content ?? ''
+
+    // --- Persist the patient's message immediately ---
+    const supabase = createServiceClient()
+    if (latestUserMessage) {
+      await supabase.from('chat_messages').insert({
+        session_id: sessionId,
+        sender: 'patient',
+        content: latestUserMessage,
+      })
+    }
+
+    // --- Pre-screen for urgent keywords before hitting OpenAI ---
     if (containsUrgentKeyword(latestUserMessage)) {
       await createNurseAlert(
         patientId,
@@ -78,7 +89,6 @@ export async function POST(req: NextRequest) {
         const responseText = assistantMessage.content ?? "I'm here to help. Is there anything you need?"
 
         // Persist assistant message to chat_messages
-        const supabase = createServiceClient()
         await supabase.from('chat_messages').insert({
           session_id: sessionId,
           sender: 'assistant',
