@@ -76,6 +76,7 @@ export default async function NursePatientDetailPage({ params }: Props) {
   const contacts = contactsRes.data ?? []
   const alerts = alertsRes.data ?? []
   const sessions = sessionsRes.data ?? []
+  const toolLogs: ToolLog[] = toolLogsRes.data ?? []
 
   const latestSession = sessions[0];
   const messagesRes = latestSession
@@ -225,7 +226,6 @@ export default async function NursePatientDetailPage({ params }: Props) {
           </div>
 
           {/* Right column */}
-<<<<<<< HEAD
           <div className="col-span-3 flex min-h-0 flex-col gap-4">
             <Card className="flex-1 min-h-0 flex flex-col rounded-none border border-[#a0a0a0] bg-[#f9f9f9] p-0 shadow-none overflow-hidden">
               {/* 2000s Panel Header */}
@@ -234,13 +234,6 @@ export default async function NursePatientDetailPage({ params }: Props) {
                   Chat Log
                 </h2>
                 <span className="text-[10px] font-bold text-[#555] uppercase">
-=======
-          <div className="col-span-3 flex min-h-0 flex-col">
-            <Card className="flex-1 min-h-0 flex flex-col p-3">
-              <div className="mb-2 shrink-0 flex items-center justify-between gap-2">
-                <h2 className="text-sm font-bold text-slate-900">Chat Log</h2>
-                <span className="text-[10px] text-slate-400">
->>>>>>> c2f86ce6644a65edc329692c8b242a0731f76b8d
                   {latestSession?.started_at
                     ? new Date(latestSession.started_at).toLocaleString("en-US")
                     : "NO ACTIVE SESSION"}
@@ -252,7 +245,6 @@ export default async function NursePatientDetailPage({ params }: Props) {
                 <ChatLogViewer messages={messages} />
               </div>
             </Card>
-<<<<<<< HEAD
 
             <Card className="shrink-0 border border-[#a0a0a0] bg-[#f9f9f9] rounded-none shadow-none p-0 font-sans">
               {/* 2000s Panel Header */}
@@ -314,8 +306,6 @@ export default async function NursePatientDetailPage({ params }: Props) {
                 )}
               </div>
             </Card>
-=======
->>>>>>> c2f86ce6644a65edc329692c8b242a0731f76b8d
           </div>
         </div>
       </div>
