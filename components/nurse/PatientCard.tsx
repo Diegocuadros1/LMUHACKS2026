@@ -37,11 +37,10 @@ export function PatientCard({ patient, openAlerts }: PatientCardProps) {
         {/* Header row */}
         <div className="flex items-start justify-between gap-3 border-b border-[#cccccc] pb-2">
           <div>
-            <p className="text-[13px] font-bold text-[#003366] uppercase">
+            <p className="text-[13px] font-bold  uppercase">
               {patient.profiles?.full_name ?? 'UNKNOWN PATIENT'}
             </p>
             
-            {/* Moved DOB here, above Room Number */}
             <p className="text-[11px] text-[#666] mt-1">
               <span className="font-bold text-[#333]">DOB:</span>{' '}
               {patient.date_of_birth 
