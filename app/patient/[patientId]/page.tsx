@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
 import { createServiceClient } from '@/lib/supabase/server'
+import { SignOutButton } from '@/components/SignOutButton'
 import { ChatWindow } from '@/components/patient/ChatWindow'
 import { SummaryCard } from '@/components/patient/SummaryCard'
 import { MedicationCard } from '@/components/patient/MedicationCard'
@@ -94,12 +94,7 @@ export default async function PatientPage({ params }: Props) {
             <p className="text-sm font-medium text-blue-200">Room {patient.room_number}</p>
             <h1 className="text-xl font-bold text-white">Hello, {firstName} 👋</h1>
           </div>
-          <Link
-            href="/"
-            className="rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/20 transition"
-          >
-            ← Home
-          </Link>
+          <SignOutButton className="rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/20 transition" />
         </div>
       </header>
 

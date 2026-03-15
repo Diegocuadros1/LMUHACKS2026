@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { createServiceClient } from "@/lib/supabase/server";
 import { PatientCard } from "@/components/nurse/PatientCard";
 import { AlertFeed } from "@/components/nurse/AlertFeed";
+import { SignOutButton } from "@/components/SignOutButton";
 import type { Alert } from "@/lib/types";
 
 export const revalidate = 0; // always fresh
@@ -55,12 +55,7 @@ export default async function NurseDashboard() {
               )}
             </p>
           </div>
-          <Link
-            href="/"
-            className="bg-[#e1e1e1] border-2 border-t-white border-l-white border-r-[#808080] border-b-[#808080] px-3 py-1 text-xs font-bold text-black uppercase active:border-t-[#808080] active:border-l-[#808080] active:border-r-white active:border-b-white no-underline"
-          >
-            [ Log Out ]
-          </Link>
+          <SignOutButton className="bg-[#e1e1e1] border-2 border-t-white border-l-white border-r-[#808080] border-b-[#808080] px-3 py-1 text-xs font-bold text-black uppercase active:border-t-[#808080] active:border-l-[#808080] active:border-r-white active:border-b-white" />
         </div>
       </header>
 
