@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { ArrowLeft, User, Pill } from 'lucide-react'
 import { createServiceClient } from '@/lib/supabase/server'
 import { NurseSummaryEditor } from '@/components/nurse/NurseSummaryEditor'
+import { NurseMessageSender } from '@/components/nurse/NurseMessageSender'
+import { MedicationEditor } from '@/components/nurse/MedicationEditor'
 import { ChatLogViewer } from '@/components/nurse/ChatLogViewer'
 import { AlertFeed } from '@/components/nurse/AlertFeed'
 import type { ToolLog } from '@/lib/types'
@@ -176,61 +178,23 @@ export default async function NursePatientDetailPage({ params }: Props) {
 
           {/* Center column */}
           <div className="col-span-6 flex min-h-0 flex-col gap-4">
-            {summary && (
-              <div className="shrink-0">
-                <NurseSummaryEditor summary={summary} nurseId={DEMO_NURSE_ID} />
-              </div>
-            )}
+            <div className="shrink-0">
+              <NurseMessageSender sessionId={latestSession?.id ?? ''} patientName={name} />
+            </div>
 
-            <Card className="min-h-[200px] flex-1 flex flex-col rounded-none border border-[#a0a0a0] bg-[#f9f9f9] p-0 shadow-none">
+            <div className="shrink-0">
+              <NurseSummaryEditor summary={summary} patientId={patientId} nurseId={DEMO_NURSE_ID} />
+            </div>
+
+            <Card className="min-h-50 flex-1 flex flex-col rounded-none border border-[#a0a0a0] bg-[#f9f9f9] p-0 shadow-none">
               <div className="bg-[#cccccc] border-b border-[#a0a0a0] px-3 py-1.5 shrink-0 flex items-center gap-2">
                 <Pill className="h-4 w-4 text-[#333]" />
                 <h2 className="text-xs font-bold text-[#333] uppercase tracking-wide">
                   Medications
                 </h2>
               </div>
-              <div className="flex-1 min-h-0 space-y-2 overflow-y-auto p-2">
-                {medications.length === 0 && (
-                  <p className="text-[11px] text-[#666] uppercase p-2 border border-[#cccccc] bg-white text-center rounded-none">
-                    No medications on file.
-                  </p>
-                )}
-                {medications.map((m) => (
-                  <div
-                    key={m.id}
-                    className="border border-[#a0a0a0] bg-white px-3 py-2 rounded-none"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <h3 className="truncate text-[12px] font-bold text-[#003366] uppercase">
-                          {m.med_name} — {m.dose}
-                        </h3>
-                        {m.schedule_text && (
-                          <p className="mt-0.5 text-[10px] text-[#555] uppercase">
-                            <span className="font-bold text-[#333]">
-                              SCHEDULE:
-                            </span>{" "}
-                            {m.schedule_text}
-                          </p>
-                        )}
-                        {m.nurse_notes && (
-                          <p className="mt-0.5 text-[10px] text-[#cc0000] font-bold uppercase">
-                            NOTE: {m.nurse_notes}
-                          </p>
-                        )}
-                      </div>
-                      <span
-                        className={`shrink-0 border px-1.5 py-0.5 text-[9px] font-bold tracking-wider rounded-none ${
-                          m.active
-                            ? "border-[#006600] text-black"
-                            : "border-[#666666] text-[#333333] bg-[#e6e6e6]"
-                        }`}
-                      >
-                        {m.active ? "Active" : "Inactive"}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+              <div className="flex-1 min-h-0 flex flex-col">
+                <MedicationEditor patientId={patientId} initialMedications={medications} />
               </div>
             </Card>
           </div>

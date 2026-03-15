@@ -94,7 +94,7 @@ export default async function PatientPage({ params }: Props) {
             <p className="text-xs text-gray-500">Room {patient.room_number}</p>
             <h1 className="text-lg font-semibold text-gray-900">Hello, {firstName}</h1>
           </div>
-          <SignOutButton className="rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/20 transition" />
+          <SignOutButton className="border border-gray-300 bg-gray-100 px-4 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-200 transition" />
         </div>
       </header>
 
