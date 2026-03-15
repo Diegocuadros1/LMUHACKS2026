@@ -54,7 +54,7 @@ export default async function NursePatientDetailPage({ params }: Props) {
     .join(' · ') || '—'
 
   return (
-    <main className="h-screen overflow-hidden bg-slate-100 p-4">
+    <main className="h-screen bg-slate-100 p-4">
       <div className="mx-auto flex h-full max-w-400 flex-col gap-4">
         {/* Header */}
         <section className="flex shrink-0 items-center rounded-3xl bg-emerald-700 px-4 py-3 text-white shadow-sm">
@@ -145,7 +145,7 @@ export default async function NursePatientDetailPage({ params }: Props) {
               </div>
             )}
 
-            <Card className="min-h-0 flex-1 flex flex-col p-3">
+            <Card className="min-h-50 flex-1 flex flex-col p-3">
               <div className="mb-2 shrink-0 flex items-center gap-2">
                 <Pill className="h-4 w-4 text-slate-600" />
                 <h2 className="text-sm font-bold text-slate-900">Medications</h2>

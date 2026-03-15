@@ -50,7 +50,7 @@ export function NurseSummaryEditor({ summary: initial, nurseId }: NurseSummaryEd
     {
       key: 'summary_text',
       label: 'Patient Summary',
-      rows: 4,
+      rows: 6,
       hint: 'What the patient can see and the AI can reference.',
     },
     {
@@ -63,7 +63,7 @@ export function NurseSummaryEditor({ summary: initial, nurseId }: NurseSummaryEd
     {
       key: 'precautions',
       label: 'Precautions / Special Instructions',
-      rows: 1,
+      rows: 4,
       hint: 'Fall risk, dietary restrictions, etc.',
     },
   ]
