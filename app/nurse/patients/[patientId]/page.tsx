@@ -97,25 +97,31 @@ export default async function NursePatientDetailPage({ params }: Props) {
     <main className="h-screen bg-slate-100 p-4">
       <div className="mx-auto flex h-full max-w-400 flex-col gap-4">
         {/* Header */}
-        <section className="flex shrink-0 items-center rounded-3xl bg-emerald-700 px-4 py-3 text-white shadow-sm">
-          <div className="flex items-center gap-3">
+<section className="flex shrink-0 items-center border-2 border-[#a0a0a0] bg-[#003366] px-4 py-3 text-white shadow-none rounded-none">
+          <div className="flex items-center gap-4">
             <Link
               href="/nurse"
-              className="inline-flex items-center gap-1.5 rounded-2xl bg-white/10 px-3 py-1.5 text-xs font-medium hover:bg-white/20 transition"
+              className="bg-[#cccccc] border-2 border-t-[#ffffff] border-l-[#ffffff] border-r-[#808080] border-b-[#808080] px-3 py-1 text-[11px] font-bold text-black uppercase active:border-t-[#808080] active:border-l-[#808080] active:border-r-[#ffffff] active:border-b-[#ffffff] no-underline shadow-none rounded-none flex items-center gap-1 cursor-pointer transition-none"
             >
               <ArrowLeft className="h-3 w-3" />
-              Dashboard
+              [ DASHBOARD ]
             </Link>
             <div>
-              <h1 className="text-base font-bold">{name}</h1>
-              <p className="text-xs text-emerald-100">
-                Room {patient.room_number} · {patient.admission_status} · DOB{" "}
+              <h1 className="text-[15px] font-bold uppercase tracking-wider text-white">
+                {name}
+              </h1>
+              <p className="text-[11px] text-[#cccccc] uppercase mt-0.5">
+                <span className="font-bold text-white">RM:</span>{" "}
+                {patient.room_number} |
+                <span className="font-bold text-white ml-2"> STAT:</span>{" "}
+                {patient.admission_status} |
+                <span className="font-bold text-white ml-2"> DOB:</span>{" "}
                 {patient.date_of_birth
                   ? new Date(patient.date_of_birth).toLocaleDateString(
                       "en-US",
                       {
-                        month: "short",
-                        day: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
                         year: "numeric",
                       },
                     )
@@ -129,31 +135,47 @@ export default async function NursePatientDetailPage({ params }: Props) {
         <div className="grid min-h-0 flex-1 grid-cols-12 gap-4">
           {/* Left column */}
           <div className="col-span-3 flex min-h-0 flex-col gap-4">
-            <Card className="shrink-0 p-3">
-              <div className="mb-2 flex items-center gap-2">
-                <User className="h-4 w-4 text-slate-600" />
-                <h2 className="text-sm font-bold text-slate-900">Profile</h2>
+            <Card className="shrink-0 border border-[#a0a0a0] bg-[#f9f9f9] rounded-none shadow-none p-0 font-sans">
+              {/* 2000s Panel Header */}
+              <div className="bg-[#cccccc] border-b border-[#a0a0a0] px-3 py-1.5 flex items-center gap-2">
+                <User className="h-3.5 w-3.5 text-[#333]" />
+                <h2 className="text-xs font-bold text-[#333] uppercase tracking-wide">
+                  Patient Profile
+                </h2>
               </div>
-              <div className="space-y-2 text-xs">
-                <InfoRow label="Full Name" value={name} />
-                <InfoRow label="Room" value={patient.room_number} />
-                <InfoRow label="Status" value={patient.admission_status} />
-                <InfoRow label="Emergency Contact" value={emergencyContact} />
+
+              <div className="p-3 space-y-3 text-xs">
+                <div className="space-y-1">
+                  <InfoRow label="Full Name" value={name} />
+                  <InfoRow
+                    label="Room"
+                    value={patient.room_number.toString()}
+                  />
+                  <InfoRow label="Status" value={patient.admission_status} />
+                  <InfoRow label="Emerg. Contact" value={emergencyContact} />
+                </div>
+
                 {contacts.length > 0 && (
-                  <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                  <div className="pt-2 border-t border-[#cccccc]">
+                    <p className="text-[10px] font-bold uppercase tracking-tight text-[#666] mb-1.5">
                       Family Contacts
                     </p>
-                    <div className="mt-1 flex flex-wrap gap-1.5">
+                    <div className="flex flex-col gap-1">
                       {contacts.map((c) => (
-                        <span
+                        <div
                           key={c.id}
-                          className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] text-slate-700"
+                          className="border border-[#cccccc] bg-white px-2 py-1 text-[10px] text-[#333] rounded-none uppercase"
                         >
-                          {c.name} ({c.relationship}) · {c.phone}
-                          {c.can_call && " 📞"}
-                          {c.can_text && " 💬"}
-                        </span>
+                          <span className="font-bold">{c.name}</span> (
+                          {c.relationship})<br />
+                          {c.phone}
+                          {c.can_call && (
+                            <span className="ml-1 text-[#006600]">[VOICE]</span>
+                          )}
+                          {c.can_text && (
+                            <span className="ml-1 text-[#0033cc]">[SMS]</span>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -161,16 +183,19 @@ export default async function NursePatientDetailPage({ params }: Props) {
               </div>
             </Card>
 
-            <Card className="min-h-0 flex-1 flex flex-col p-3">
-              <div className="mb-2 shrink-0">
-                <h2 className="text-sm font-bold text-slate-900">
-                  Alerts
-                  <span className="ml-2 text-xs font-normal text-slate-400">
-                    ({alerts.filter((a) => a.status === "open").length} open)
-                  </span>
+            <Card className="min-h-0 flex-1 flex flex-col rounded-none border border-[#a0a0a0] bg-[#f9f9f9] p-0 shadow-none">
+              {/* 2000s Panel Header */}
+              <div className="bg-[#cccccc] border-b border-[#a0a0a0] px-3 py-1.5 shrink-0 flex justify-between items-center">
+                <h2 className="text-xs font-bold text-[#333] uppercase tracking-wide">
+                  System Alerts
                 </h2>
+                <span className="text-[10px] font-bold text-[#666] uppercase">
+                  ({alerts.filter((a) => a.status === "open").length} PENDING)
+                </span>
               </div>
-              <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+
+              {/* Feed Container */}
+              <div className="flex-1 min-h-0 overflow-y-auto p-2">
                 <AlertFeed alerts={alerts} />
               </div>
             </Card>
@@ -246,67 +271,84 @@ export default async function NursePatientDetailPage({ params }: Props) {
 
           {/* Right column */}
           <div className="col-span-3 flex min-h-0 flex-col gap-4">
-            <Card className="flex-1 min-h-0 flex flex-col p-3">
-              <div className="mb-2 shrink-0 flex items-center justify-between gap-2">
-                <h2 className="text-sm font-bold text-slate-900">Chat Log</h2>
-                <span className="text-[10px] text-slate-400">
+            <Card className="flex-1 min-h-0 flex flex-col rounded-none border border-[#a0a0a0] bg-[#f9f9f9] p-0 shadow-none overflow-hidden">
+              {/* 2000s Panel Header */}
+              <div className="bg-[#cccccc] border-b border-[#a0a0a0] px-3 py-1.5 flex items-center justify-between shrink-0">
+                <h2 className="text-xs font-bold text-[#333] uppercase tracking-wide">
+                  Chat Log
+                </h2>
+                <span className="text-[10px] font-bold text-[#555] uppercase">
                   {latestSession?.started_at
-                    ? new Date(latestSession.started_at).toLocaleString()
-                    : "No session"}
+                    ? new Date(latestSession.started_at).toLocaleString("en-US")
+                    : "NO ACTIVE SESSION"}
                 </span>
               </div>
-              <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+
+              {/* Viewer Container */}
+              <div className="flex-1 min-h-0 flex flex-col p-2">
                 <ChatLogViewer messages={messages} />
               </div>
             </Card>
 
-            <Card className="shrink-0 p-3">
-              <h2 className="mb-2 text-sm font-bold text-slate-900">
-                AI Tool Logs
-              </h2>
-              {toolLogs.length === 0 ? (
-                <p className="text-xs text-slate-400">
-                  No tool calls recorded.
-                </p>
-              ) : (
-                <div className="space-y-1.5 max-h-48 overflow-y-auto">
-                  {toolLogs.map((log) => (
-                    <div
-                      key={log.id}
-                      className={`px-3 py-2 text-xs font-mono ${
-                        log.status === "error"
-                          ? "bg-red-50 border border-red-200"
-                          : log.status === "mocked"
-                            ? "bg-yellow-50 border border-yellow-200"
-                            : "bg-slate-50 border border-slate-100"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="font-bold text-purple-700">
-                          {log.tool_name}
-                        </span>
-                        <span
-                          className={`px-2 py-0.5 ${
-                            log.status === "error"
-                              ? "bg-red-200 text-red-800"
-                              : log.status === "mocked"
-                                ? "bg-yellow-200 text-yellow-800"
-                                : "bg-emerald-200 text-emerald-800"
-                          }`}
-                        >
-                          {log.status}
-                        </span>
-                        <span className="ml-auto text-slate-400">
-                          {new Date(log.created_at).toLocaleTimeString()}
-                        </span>
+            <Card className="shrink-0 border border-[#a0a0a0] bg-[#f9f9f9] rounded-none shadow-none p-0 font-sans">
+              {/* 2000s Panel Header */}
+              <div className="bg-[#cccccc] border-b border-[#a0a0a0] px-3 py-1.5 shrink-0">
+                <h2 className="text-xs font-bold text-[#333] uppercase tracking-wide">
+                  System Tool Logs
+                </h2>
+              </div>
+
+              <div className="p-2">
+                {toolLogs.length === 0 ? (
+                  <p className="text-[11px] text-[#666] uppercase p-2 border border-[#cccccc] bg-white text-center">
+                    No tool calls recorded.
+                  </p>
+                ) : (
+                  <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                    {toolLogs.map((log) => (
+                      <div
+                        key={log.id}
+                        className={`border p-2 text-[10px] font-mono rounded-none ${
+                          log.status === "error"
+                            ? "border-[#cc0000] bg-[#fff0f0]"
+                            : log.status === "mocked"
+                              ? "border-[#cca300] bg-[#ffffe6]"
+                              : "border-[#a0a0a0] bg-white"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between border-b border-dotted border-[#cccccc] pb-1 mb-1">
+                          <span className="font-bold text-[#800080] uppercase">
+                            SYS:{log.tool_name}
+                          </span>
+                          <span
+                            className={`border px-1 py-0.5 font-bold uppercase rounded-none ${
+                              log.status === "error"
+                                ? "border-[#cc0000] text-[#cc0000] bg-white"
+                                : log.status === "mocked"
+                                  ? "border-[#cca300] text-[#806600] bg-white"
+                                  : "border-[#006600] text-black bg-[#e6ffe6]"
+                            }`}
+                          >
+                            {log.status}
+                          </span>
+                        </div>
+
+                        <div className="flex justify-between items-start pt-1">
+                          <p className="text-[#333] truncate w-[75%]">
+                            -&gt; {JSON.stringify(log.output_json)}
+                          </p>
+                          <span className="text-[#666] text-[9px]">
+                            {new Date(log.created_at).toLocaleTimeString(
+                              "en-US",
+                              { hour12: false },
+                            )}
+                          </span>
+                        </div>
                       </div>
-                      <p className="text-slate-500 truncate">
-                        → {JSON.stringify(log.output_json)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
+              </div>
             </Card>
           </div>
         </div>
