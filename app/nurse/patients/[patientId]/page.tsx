@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { ArrowLeft, User, Pill } from 'lucide-react'
 import { createServiceClient } from '@/lib/supabase/server'
 import { NurseSummaryEditor } from '@/components/nurse/NurseSummaryEditor'
-import { NurseMessageSender } from '@/components/nurse/NurseMessageSender'
 import { ChatLogViewer } from '@/components/nurse/ChatLogViewer'
 import { AlertFeed } from '@/components/nurse/AlertFeed'
 import type { ToolLog } from '@/lib/types'
@@ -36,7 +35,6 @@ export default async function NursePatientDetailPage({ params }: Props) {
   const contacts = contactsRes.data ?? []
   const alerts = alertsRes.data ?? []
   const sessions = sessionsRes.data ?? []
-  const toolLogs: ToolLog[] = toolLogsRes.data ?? []
 
   const latestSession = sessions[0]
   const messagesRes = latestSession
@@ -135,10 +133,6 @@ export default async function NursePatientDetailPage({ params }: Props) {
 
           {/* Center column */}
           <div className="col-span-6 flex min-h-0 flex-col gap-4">
-            <div className="shrink-0">
-              <NurseMessageSender sessionId={latestSession?.id ?? ''} patientName={name} />
-            </div>
-
             {summary && (
               <div className="shrink-0">
                 <NurseSummaryEditor summary={summary} nurseId={DEMO_NURSE_ID} />
@@ -188,7 +182,7 @@ export default async function NursePatientDetailPage({ params }: Props) {
           </div>
 
           {/* Right column */}
-          <div className="col-span-3 flex min-h-0 flex-col gap-4">
+          <div className="col-span-3 flex min-h-0 flex-col">
             <Card className="flex-1 min-h-0 flex flex-col p-3">
               <div className="mb-2 shrink-0 flex items-center justify-between gap-2">
                 <h2 className="text-sm font-bold text-slate-900">Chat Log</h2>
@@ -201,45 +195,6 @@ export default async function NursePatientDetailPage({ params }: Props) {
               <div className="flex-1 min-h-0 overflow-y-auto pr-1">
                 <ChatLogViewer messages={messages} />
               </div>
-            </Card>
-
-            <Card className="shrink-0 p-3">
-              <h2 className="mb-2 text-sm font-bold text-slate-900">AI Tool Logs</h2>
-              {toolLogs.length === 0 ? (
-                <p className="text-xs text-slate-400">No tool calls recorded.</p>
-              ) : (
-                <div className="space-y-1.5 max-h-48 overflow-y-auto">
-                  {toolLogs.map((log) => (
-                    <div
-                      key={log.id}
-                      className={`rounded-xl px-3 py-2 text-xs font-mono ${
-                        log.status === 'error'
-                          ? 'bg-red-50 border border-red-200'
-                          : log.status === 'mocked'
-                          ? 'bg-yellow-50 border border-yellow-200'
-                          : 'bg-slate-50 border border-slate-100'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="font-bold text-purple-700">{log.tool_name}</span>
-                        <span className={`rounded-full px-2 py-0.5 ${
-                          log.status === 'error'
-                            ? 'bg-red-200 text-red-800'
-                            : log.status === 'mocked'
-                            ? 'bg-yellow-200 text-yellow-800'
-                            : 'bg-emerald-200 text-emerald-800'
-                        }`}>
-                          {log.status}
-                        </span>
-                        <span className="ml-auto text-slate-400">
-                          {new Date(log.created_at).toLocaleTimeString()}
-                        </span>
-                      </div>
-                      <p className="text-slate-500 truncate">→ {JSON.stringify(log.output_json)}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
             </Card>
           </div>
         </div>
