@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import { z } from 'zod'
-import { SYSTEM_PROMPT, containsUrgentKeyword } from '@/lib/ai/system-prompt'
+import { SYSTEM_PROMPT, containsUrgentKeyword, containsAlertKeyword } from '@/lib/ai/system-prompt'
 import { TOOL_DEFINITIONS, dispatchTool } from '@/lib/ai/tool-registry'
 import { createNurseAlert } from '@/lib/tools/createNurseAlert'
 import { createServiceClient } from '@/lib/supabase/server'
@@ -57,6 +57,12 @@ export async function POST(req: NextRequest) {
         'critical',
         `Patient message triggered urgent keyword detection: "${latestUserMessage.slice(0, 200)}"`
       )
+    } else if (containsAlertKeyword(latestUserMessage)) {
+      await createNurseAlert(
+        patientId,
+        'medium',
+        `Patient message triggered alert keyword detection: "${latestUserMessage.slice(0, 200)}"`
+      )
     }
 
     // --- Build OpenAI message list ---
@@ -74,8 +80,8 @@ export async function POST(req: NextRequest) {
         messages: openaiMessages,
         tools: TOOL_DEFINITIONS,
         tool_choice: 'auto',
-        max_tokens: 600,
-        temperature: 0.4,
+        max_tokens: 1000,
+        temperature: 0.2,
       })
 
       const choice = completion.choices[0]
