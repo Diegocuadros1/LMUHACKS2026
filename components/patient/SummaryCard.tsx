@@ -10,11 +10,11 @@ interface SummaryCardProps {
 export function SummaryCard({ summary, loading }: SummaryCardProps) {
   if (loading) {
     return (
-      <div className="animate-pulse rounded-2xl bg-blue-50 p-6">
-        <div className="mb-3 h-5 w-1/3 rounded bg-blue-200" />
+      <div className="animate-pulse bg-white border border-gray-300 p-4">
+        <div className="mb-3 h-4 w-1/3 rounded bg-gray-200" />
         <div className="space-y-2">
-          <div className="h-4 rounded bg-blue-100" />
-          <div className="h-4 w-5/6 rounded bg-blue-100" />
+          <div className="h-3 rounded bg-gray-100" />
+          <div className="h-3 w-5/6 rounded bg-gray-100" />
         </div>
       </div>
     )
@@ -22,38 +22,40 @@ export function SummaryCard({ summary, loading }: SummaryCardProps) {
 
   if (!summary) {
     return (
-      <div className="rounded-2xl bg-gray-50 p-6 text-gray-500">
+      <div className="bg-white border border-gray-300 p-4 text-sm text-gray-500">
         No summary available. Ask your nurse.
       </div>
     )
   }
 
   return (
-    <div className="rounded-2xl bg-blue-50 p-6 space-y-4">
-      <h2 className="text-xl font-bold text-blue-900">Your Health Summary</h2>
+    <div className="bg-white border border-gray-300 p-4 space-y-3 max-h-80 overflow-y-auto w-full overflow-x-hidden">
+      <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide sticky top-0 bg-white pb-1">
+        Your Health Summary
+      </h2>
 
       {summary.summary_text && (
-        <p className="text-base leading-relaxed text-blue-800">{summary.summary_text}</p>
+        <p className="text-xs leading-relaxed text-gray-700 wrap-break-word">{summary.summary_text}</p>
       )}
 
       {summary.diagnoses_display && (
         <div>
-          <p className="text-sm font-semibold uppercase tracking-wide text-blue-600">Condition</p>
-          <p className="mt-1 text-base text-blue-900">{summary.diagnoses_display}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Condition</p>
+          <p className="mt-0.5 text-xs text-gray-800">{summary.diagnoses_display}</p>
         </div>
       )}
 
       {summary.allergies && (
-        <div className="rounded-xl bg-red-50 px-4 py-3">
-          <p className="text-sm font-semibold uppercase tracking-wide text-red-700">Allergies</p>
-          <p className="mt-1 text-base font-medium text-red-800">{summary.allergies}</p>
+        <div className="border-l-2 border-red-500 pl-3 py-1 bg-gray-50">
+          <p className="text-xs font-semibold uppercase tracking-wide text-red-700">Allergies</p>
+          <p className="mt-0.5 text-xs text-gray-800">{summary.allergies}</p>
         </div>
       )}
 
       {summary.precautions && (
-        <div className="rounded-xl bg-yellow-50 px-4 py-3">
-          <p className="text-sm font-semibold uppercase tracking-wide text-yellow-700">Precautions</p>
-          <p className="mt-1 text-base text-yellow-800">{summary.precautions}</p>
+        <div className="border-l-2 border-yellow-500 pl-3 py-1 bg-gray-50">
+          <p className="text-xs font-semibold uppercase tracking-wide text-yellow-700">Precautions</p>
+          <p className="mt-0.5 text-xs text-gray-800">{summary.precautions}</p>
         </div>
       )}
     </div>

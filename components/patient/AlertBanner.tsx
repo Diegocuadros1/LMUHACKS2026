@@ -7,15 +7,17 @@ interface AlertBannerProps {
 
 export function AlertBanner({ message, onDismiss }: AlertBannerProps) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-xl bg-red-600 px-6 py-4 text-white shadow-lg">
-      <div className="flex items-center gap-3">
-        <span className="text-2xl" aria-hidden>🚨</span>
-        <p className="text-lg font-semibold">{message}</p>
+    <div className="flex items-start justify-between gap-4 border border-red-500 bg-white px-4 py-3">
+      <div className="flex items-start gap-3">
+        <span className="shrink-0 border border-red-500 px-2 py-0.5 text-xs font-semibold text-red-600">
+          ALERT
+        </span>
+        <p className="text-sm font-medium text-gray-900 leading-snug">{message}</p>
       </div>
       {onDismiss && (
         <button
           onClick={onDismiss}
-          className="rounded-lg bg-white/20 px-4 py-2 text-sm font-medium hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white"
+          className="shrink-0 border border-gray-400 bg-gray-200 px-3 py-1 text-xs hover:bg-gray-300 focus:outline-none"
           aria-label="Dismiss alert"
         >
           Dismiss

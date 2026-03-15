@@ -3,32 +3,70 @@ import Link from 'next/link'
 import { ArrowLeft, User, Pill } from 'lucide-react'
 import { createServiceClient } from '@/lib/supabase/server'
 import { NurseSummaryEditor } from '@/components/nurse/NurseSummaryEditor'
-import { NurseMessageSender } from '@/components/nurse/NurseMessageSender'
 import { ChatLogViewer } from '@/components/nurse/ChatLogViewer'
 import { AlertFeed } from '@/components/nurse/AlertFeed'
 import type { ToolLog } from '@/lib/types'
 
 interface Props {
-  params: Promise<{ patientId: string }>
+  params: Promise<{ patientId: string }>;
 }
 
-const DEMO_NURSE_ID = '00000000-0000-0000-0000-000000000001'
+const DEMO_NURSE_ID = "00000000-0000-0000-0000-000000000001";
 
 export default async function NursePatientDetailPage({ params }: Props) {
-  const { patientId } = await params
-  const supabase = createServiceClient()
+  const { patientId } = await params;
+  const supabase = createServiceClient();
 
-  const [patientRes, summaryRes, medsRes, contactsRes, alertsRes, sessionsRes, toolLogsRes] = await Promise.all([
-    supabase.from('patients').select('*, profiles!profile_id(*)').eq('id', patientId).single(),
-    supabase.from('patient_summaries').select('*').eq('patient_id', patientId).single(),
-    supabase.from('medications').select('*').eq('patient_id', patientId).order('created_at'),
-    supabase.from('contacts').select('*').eq('patient_id', patientId).order('created_at'),
-    supabase.from('alerts').select('*').eq('patient_id', patientId).order('created_at', { ascending: false }).limit(20),
-    supabase.from('chat_sessions').select('*').eq('patient_id', patientId).order('started_at', { ascending: false }).limit(5),
-    supabase.from('tool_logs').select('*').eq('patient_id', patientId).order('created_at', { ascending: false }).limit(20),
-  ])
+  const [
+    patientRes,
+    summaryRes,
+    medsRes,
+    contactsRes,
+    alertsRes,
+    sessionsRes,
+    toolLogsRes,
+  ] = await Promise.all([
+    supabase
+      .from("patients")
+      .select("*, profiles!profile_id(*)")
+      .eq("id", patientId)
+      .single(),
+    supabase
+      .from("patient_summaries")
+      .select("*")
+      .eq("patient_id", patientId)
+      .single(),
+    supabase
+      .from("medications")
+      .select("*")
+      .eq("patient_id", patientId)
+      .order("created_at"),
+    supabase
+      .from("contacts")
+      .select("*")
+      .eq("patient_id", patientId)
+      .order("created_at"),
+    supabase
+      .from("alerts")
+      .select("*")
+      .eq("patient_id", patientId)
+      .order("created_at", { ascending: false })
+      .limit(20),
+    supabase
+      .from("chat_sessions")
+      .select("*")
+      .eq("patient_id", patientId)
+      .order("started_at", { ascending: false })
+      .limit(5),
+    supabase
+      .from("tool_logs")
+      .select("*")
+      .eq("patient_id", patientId)
+      .order("created_at", { ascending: false })
+      .limit(20),
+  ]);
 
-  if (patientRes.error || !patientRes.data) notFound()
+  if (patientRes.error || !patientRes.data) notFound();
 
   const patient = patientRes.data
   const summary = summaryRes.data
@@ -36,22 +74,22 @@ export default async function NursePatientDetailPage({ params }: Props) {
   const contacts = contactsRes.data ?? []
   const alerts = alertsRes.data ?? []
   const sessions = sessionsRes.data ?? []
-  const toolLogs: ToolLog[] = toolLogsRes.data ?? []
 
-  const latestSession = sessions[0]
+  const latestSession = sessions[0];
   const messagesRes = latestSession
     ? await supabase
-        .from('chat_messages')
-        .select('*')
-        .eq('session_id', latestSession.id)
-        .order('created_at', { ascending: true })
-    : null
-  const messages = (messagesRes?.data ?? []).slice().reverse()
+        .from("chat_messages")
+        .select("*")
+        .eq("session_id", latestSession.id)
+        .order("created_at", { ascending: true })
+    : null;
+  const messages = (messagesRes?.data ?? []).slice().reverse();
 
-  const name = patient.profiles?.full_name ?? 'Unknown'
-  const emergencyContact = [patient.emergency_contact_name, patient.emergency_contact_phone]
-    .filter(Boolean)
-    .join(' · ') || '—'
+  const name = patient.profiles?.full_name ?? "Unknown";
+  const emergencyContact =
+    [patient.emergency_contact_name, patient.emergency_contact_phone]
+      .filter(Boolean)
+      .join(" · ") || "—";
 
   return (
     <main className="h-screen bg-slate-100 p-4">
@@ -69,14 +107,17 @@ export default async function NursePatientDetailPage({ params }: Props) {
             <div>
               <h1 className="text-base font-bold">{name}</h1>
               <p className="text-xs text-emerald-100">
-                Room {patient.room_number} · {patient.admission_status} · DOB{' '}
+                Room {patient.room_number} · {patient.admission_status} · DOB{" "}
                 {patient.date_of_birth
-                  ? new Date(patient.date_of_birth).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })
-                  : 'N/A'}
+                  ? new Date(patient.date_of_birth).toLocaleDateString(
+                      "en-US",
+                      {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      },
+                    )
+                  : "N/A"}
               </p>
             </div>
           </div>
@@ -108,8 +149,8 @@ export default async function NursePatientDetailPage({ params }: Props) {
                           className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] text-slate-700"
                         >
                           {c.name} ({c.relationship}) · {c.phone}
-                          {c.can_call && ' 📞'}
-                          {c.can_text && ' 💬'}
+                          {c.can_call && " 📞"}
+                          {c.can_text && " 💬"}
                         </span>
                       ))}
                     </div>
@@ -118,12 +159,12 @@ export default async function NursePatientDetailPage({ params }: Props) {
               </div>
             </Card>
 
-<Card className="min-h-0 flex-1 flex flex-col p-3">
+            <Card className="min-h-0 flex-1 flex flex-col p-3">
               <div className="mb-2 shrink-0">
                 <h2 className="text-sm font-bold text-slate-900">
                   Alerts
                   <span className="ml-2 text-xs font-normal text-slate-400">
-                    ({alerts.filter((a) => a.status === 'open').length} open)
+                    ({alerts.filter((a) => a.status === "open").length} open)
                   </span>
                 </h2>
               </div>
@@ -135,50 +176,57 @@ export default async function NursePatientDetailPage({ params }: Props) {
 
           {/* Center column */}
           <div className="col-span-6 flex min-h-0 flex-col gap-4">
-            <div className="shrink-0">
-              <NurseMessageSender sessionId={latestSession?.id ?? ''} patientName={name} />
-            </div>
-
             {summary && (
               <div className="shrink-0">
                 <NurseSummaryEditor summary={summary} nurseId={DEMO_NURSE_ID} />
               </div>
             )}
 
-            <Card className="min-h-50 flex-1 flex flex-col p-3">
-              <div className="mb-2 shrink-0 flex items-center gap-2">
-                <Pill className="h-4 w-4 text-slate-600" />
-                <h2 className="text-sm font-bold text-slate-900">Medications</h2>
+            <Card className="min-h-[200px] flex-1 flex flex-col rounded-none border border-[#a0a0a0] bg-[#f9f9f9] p-0 shadow-none">
+              <div className="bg-[#cccccc] border-b border-[#a0a0a0] px-3 py-1.5 shrink-0 flex items-center gap-2">
+                <Pill className="h-4 w-4 text-[#333]" />
+                <h2 className="text-xs font-bold text-[#333] uppercase tracking-wide">
+                  Medications
+                </h2>
               </div>
-              <div className="flex-1 min-h-0 space-y-2 overflow-y-auto pr-1">
+              <div className="flex-1 min-h-0 space-y-2 overflow-y-auto p-2">
                 {medications.length === 0 && (
-                  <p className="text-xs text-slate-400">No medications on file.</p>
+                  <p className="text-[11px] text-[#666] uppercase p-2 border border-[#cccccc] bg-white text-center rounded-none">
+                    No medications on file.
+                  </p>
                 )}
                 {medications.map((m) => (
                   <div
                     key={m.id}
-                    className="rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-2"
+                    className="border border-[#a0a0a0] bg-white px-3 py-2 rounded-none"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <h3 className="truncate text-xs font-semibold text-slate-900">
+                        <h3 className="truncate text-[12px] font-bold text-[#003366] uppercase">
                           {m.med_name} — {m.dose}
                         </h3>
                         {m.schedule_text && (
-                          <p className="mt-0.5 text-[11px] text-slate-600">⏰ {m.schedule_text}</p>
+                          <p className="mt-0.5 text-[10px] text-[#555] uppercase">
+                            <span className="font-bold text-[#333]">
+                              SCHEDULE:
+                            </span>{" "}
+                            {m.schedule_text}
+                          </p>
                         )}
                         {m.nurse_notes && (
-                          <p className="mt-0.5 text-[11px] italic text-orange-600">{m.nurse_notes}</p>
+                          <p className="mt-0.5 text-[10px] text-[#cc0000] font-bold uppercase">
+                            NOTE: {m.nurse_notes}
+                          </p>
                         )}
                       </div>
                       <span
-                        className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                        className={`shrink-0 border px-1.5 py-0.5 text-[9px] font-bold tracking-wider rounded-none ${
                           m.active
-                            ? 'bg-emerald-100 text-emerald-700'
-                            : 'bg-slate-100 text-slate-500'
+                            ? "border-[#006600] text-black"
+                            : "border-[#666666] text-[#333333] bg-[#e6e6e6]"
                         }`}
                       >
-                        {m.active ? 'Active' : 'Inactive'}
+                        {m.active ? "Active" : "Inactive"}
                       </span>
                     </div>
                   </div>
@@ -188,86 +236,50 @@ export default async function NursePatientDetailPage({ params }: Props) {
           </div>
 
           {/* Right column */}
-          <div className="col-span-3 flex min-h-0 flex-col gap-4">
+          <div className="col-span-3 flex min-h-0 flex-col">
             <Card className="flex-1 min-h-0 flex flex-col p-3">
               <div className="mb-2 shrink-0 flex items-center justify-between gap-2">
                 <h2 className="text-sm font-bold text-slate-900">Chat Log</h2>
                 <span className="text-[10px] text-slate-400">
                   {latestSession?.started_at
                     ? new Date(latestSession.started_at).toLocaleString()
-                    : 'No session'}
+                    : "No session"}
                 </span>
               </div>
               <div className="flex-1 min-h-0 overflow-y-auto pr-1">
                 <ChatLogViewer messages={messages} />
               </div>
             </Card>
-
-            <Card className="shrink-0 p-3">
-              <h2 className="mb-2 text-sm font-bold text-slate-900">AI Tool Logs</h2>
-              {toolLogs.length === 0 ? (
-                <p className="text-xs text-slate-400">No tool calls recorded.</p>
-              ) : (
-                <div className="space-y-1.5 max-h-48 overflow-y-auto">
-                  {toolLogs.map((log) => (
-                    <div
-                      key={log.id}
-                      className={`rounded-xl px-3 py-2 text-xs font-mono ${
-                        log.status === 'error'
-                          ? 'bg-red-50 border border-red-200'
-                          : log.status === 'mocked'
-                          ? 'bg-yellow-50 border border-yellow-200'
-                          : 'bg-slate-50 border border-slate-100'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="font-bold text-purple-700">{log.tool_name}</span>
-                        <span className={`rounded-full px-2 py-0.5 ${
-                          log.status === 'error'
-                            ? 'bg-red-200 text-red-800'
-                            : log.status === 'mocked'
-                            ? 'bg-yellow-200 text-yellow-800'
-                            : 'bg-emerald-200 text-emerald-800'
-                        }`}>
-                          {log.status}
-                        </span>
-                        <span className="ml-auto text-slate-400">
-                          {new Date(log.created_at).toLocaleTimeString()}
-                        </span>
-                      </div>
-                      <p className="text-slate-500 truncate">→ {JSON.stringify(log.output_json)}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Card>
           </div>
         </div>
       </div>
     </main>
-  )
+  );
 }
 
 function Card({
   children,
-  className = '',
+  className = "",
 }: {
-  children: React.ReactNode
-  className?: string
+  children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <section className={`rounded-3xl border border-slate-200 bg-white shadow-sm ${className}`}>
+    <section
+      className={`border border-slate-200 bg-white shadow-sm ${className}`}
+    >
       {children}
     </section>
-  )
+  );
 }
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+        {label}
+      </p>
       <p className="mt-1 font-medium text-slate-900">{value}</p>
     </div>
-  )
+  );
 }
-
