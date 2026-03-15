@@ -9,21 +9,20 @@ interface RoomControlsProps {
 
 type DeviceAction = {
   label: string
-  emoji: string
   deviceType: string
   action: string
   value?: number
 }
 
 const DEVICE_ACTIONS: DeviceAction[] = [
-  { label: 'TV On',       emoji: '📺', deviceType: 'tv',     action: 'on' },
-  { label: 'TV Off',      emoji: '📺', deviceType: 'tv',     action: 'off' },
-  { label: 'Lights On',   emoji: '💡', deviceType: 'lights', action: 'on' },
-  { label: 'Lights Off',  emoji: '💡', deviceType: 'lights', action: 'off' },
-  { label: 'Dim Lights',  emoji: '🌙', deviceType: 'lights', action: 'dim', value: 30 },
-  { label: 'Raise Bed',   emoji: '🛏️', deviceType: 'bed',    action: 'raise' },
-  { label: 'Lower Bed',   emoji: '🛏️', deviceType: 'bed',    action: 'lower' },
-  { label: 'Call Nurse',  emoji: '🔔', deviceType: 'nurse_call', action: 'trigger' },
+  { label: 'TV On',       deviceType: 'tv',     action: 'on' },
+  { label: 'TV Off',       deviceType: 'tv',     action: 'off' },
+  { label: 'Lights On',   deviceType: 'lights', action: 'on' },
+  { label: 'Lights Off',   deviceType: 'lights', action: 'off' },
+  { label: 'Dim Lights',   deviceType: 'lights', action: 'dim', value: 30 },
+  { label: 'Raise Bed',    deviceType: 'bed',    action: 'raise' },
+  { label: 'Lower Bed',  deviceType: 'bed',    action: 'lower' },
+  { label: 'Call Nurse',  deviceType: 'nurse_call', action: 'trigger' },
 ]
 
 export function RoomControls({ patientId, onAction }: RoomControlsProps) {
@@ -60,12 +59,12 @@ export function RoomControls({ patientId, onAction }: RoomControlsProps) {
   }
 
   return (
-    <div className="rounded-2xl bg-purple-50 p-6 space-y-4">
-      <h2 className="text-xl font-bold text-purple-900">Room Controls</h2>
+    <div className="bg-white border border-gray-300 p-4 space-y-3">
+      <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Room Controls</h2>
       {feedback && (
-        <p className="rounded-lg bg-purple-100 px-3 py-2 text-sm text-purple-800">{feedback}</p>
+        <p className="border border-gray-300 bg-gray-50 px-3 py-1.5 text-xs text-gray-700">{feedback}</p>
       )}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2">
         {DEVICE_ACTIONS.map((device) => {
           const key = `${device.deviceType}-${device.action}`
           const isLoading = loading === key
@@ -75,14 +74,13 @@ export function RoomControls({ patientId, onAction }: RoomControlsProps) {
               key={key}
               onClick={() => handleDevice(device)}
               disabled={!!loading}
-              className={`flex flex-col items-center gap-2 rounded-xl px-3 py-4 text-sm font-semibold shadow-sm transition active:scale-95 focus:outline-none focus:ring-2 focus:ring-purple-400 disabled:opacity-50 ${
+              className={`flex items-center gap-2 border px-3 py-2 text-sm font-medium transition active:scale-95 focus:outline-none disabled:opacity-50 ${
                 isNurseCall
-                  ? 'bg-red-600 text-white hover:bg-red-700 col-span-2'
-                  : 'bg-white text-purple-900 hover:bg-purple-100'
+                  ? 'col-span-2 justify-center border-red-500 bg-red-600 text-white hover:bg-red-700'
+                  : 'border-gray-400 bg-gray-200 text-gray-800 hover:bg-gray-300'
               }`}
               aria-label={device.label}
             >
-              <span className="text-2xl">{isLoading ? '⏳' : device.emoji}</span>
               <span>{device.label}</span>
             </button>
           )
