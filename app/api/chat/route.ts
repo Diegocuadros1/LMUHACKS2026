@@ -21,9 +21,9 @@ const RequestSchema = z.object({
   messages: z.array(
     z.object({
       role: z.enum(['user', 'assistant']),
-      content: z.string().max(2000),
+      content: z.string().max(4000),
     })
-  ).max(300),
+  ).max(500),
 })
 
 export async function POST(req: NextRequest) {
