@@ -1,6 +1,6 @@
 # CareCompanion — Hospital Patient Assistant
 
-A supervised AI assistant for hospital patients built for LMU Hacks 2026.
+A supervised AI assistant for hospital patients built for LMU Hacks 2026. --Won 1st Place
 
 > **This is a demo application.** Not a medical device. The AI assistant does not diagnose, prescribe, or alter treatment plans. All responses are supervised and bounded by nurse-approved patient data.
 
